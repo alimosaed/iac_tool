@@ -1,0 +1,56 @@
+resources:
+  - type: virtual_machine
+    name: web_server
+    config:
+      # Mandatory fields
+      instance_type: t2.micro
+      ami_id: ami-0c55b159cbfafe1f0
+      region: us-west-2
+      provider: aws
+      # Optional fields
+      tags:
+        Environment: Production
+        Project: WebApp
+      security_group_ids: 
+        - sg-12345678  
+      key_name: web_server_key
+      subnet_id: subnet-12345678  
+
+  - type: network
+    name: web_network
+    config:
+      # Mandatory fields
+      provider: aws
+      vpc_cidr: 10.0.0.0/16
+      # Optional fields
+      subnets:
+        - name: public_subnet_1
+          cidr: 10.0.1.0/24
+          availability_zone: us-west-2a
+        - name: public_subnet_2
+          cidr: 10.0.2.0/24
+          availability_zone: us-west-2b
+      route_tables:
+        - name: public_route_table
+          routes:
+            - destination: 0.0.0.0/0
+              target: igw-12345678 
+
+  - type: database
+    name: user_database
+    config:
+      # Mandatory fields
+      provider: aws
+      engine: postgresql
+      engine_version: 13.4
+      instance_class: db.t3.micro
+      allocated_storage: 20
+      master_username: admin
+      master_password: ${DB_PASSWORD}
+      # Optional fields
+      storage_type: gp2
+      backup_retention_period: 7
+      multi_az: false
+      subnet_group: db_subnet_group
+      vpc_security_group_ids:
+        - sg-87654321 
